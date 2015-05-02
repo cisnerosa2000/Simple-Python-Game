@@ -1,0 +1,170 @@
+from Tkinter import *
+import Tkinter
+import numpy as np
+import random
+#each movement creates a new enemy
+#stay alive for as long as possible
+#new window with a counter for each movement
+
+root = Tk()
+text = Text(state=DISABLED)
+root.title('Grid Game!')
+
+listone = []
+grid = []
+x = 9
+y = 9
+#^^^ these need to be odd
+x2 = x - 1
+y2 = y - 1 
+score = 0
+
+def makegrid():
+    global grid
+    for i in range(x):
+        grid.append('o')
+    grid = [grid for i in range(y)]
+    grid = np.matrix(grid)
+  
+    text.config(state=NORMAL)
+    text.insert(INSERT,grid)
+    text.config(state=DISABLED)
+    
+    
+makegrid()
+
+class Enemy(object):
+    def __init__(self,xcoord,ycoord):
+        self.xcoord = xcoord
+        self.ycoord = ycoord
+
+class Player(object):
+    def __init__(self,xcoord,ycoord):
+        self.xcoord = xcoord
+        self.ycoord = ycoord
+
+
+
+def makeenemy():
+    global X
+    X = Enemy(xcoord = random.randint(0,x2), ycoord = random.randint(0,y2))
+    grid[X.xcoord,X.ycoord] = 'X'
+    
+    text.config(state=NORMAL)
+    text.delete(1.0,END)
+    text.insert(INSERT,grid)
+    text.config(state=DISABLED)
+def win():
+    end = Tk()
+    root.destroy()
+    
+    end.title('You Win!')
+    text = Text(end)
+    text.config(state=NORMAL)
+    text.delete(1.0,END)
+    text.insert(INSERT,"Congratulations! You win!")
+    text.config(state=DISABLED)
+    
+    text.pack()
+    end.mainloop()
+    
+    
+def loss():
+    end = Tk()
+    root.destroy()
+    global x
+    global y
+    total = x * y
+    
+    end.title('You Lose!')
+    text = Text(end)
+    text.config(state=NORMAL)
+    text.delete(1.0,END)
+    text.insert(INSERT,"You lose!, your score is %s out of %s that you need to win." % (score,total))
+    text.config(state=DISABLED)
+    
+    text.pack()
+    end.mainloop()
+
+def makeplayer():
+    global player
+    player = Player(xcoord = x2/2, ycoord = y2/2)
+    #will be checked player loses with some kind of 'if enemy.xcoord == player.xcoord and enemy.ycoord == player.ycoord
+    #make a counter that counts up with every key press to keep score
+    grid[player.xcoord,player.ycoord] = '*'
+    
+    text.config(state=NORMAL)
+    text.delete(1.0,END)
+    text.insert(INSERT,grid)
+    text.config(state=DISABLED)
+    
+    
+
+def movement():
+    makeenemy()
+    global oldx 
+    global oldy
+    global score
+    score += 1
+    if score == x * y:
+        win()
+        
+    
+    grid[oldx,oldy] = 'o'
+    #^^^ change from 0 to 1 to toggle Tron effect
+    if grid[player.xcoord,player.ycoord] != 'X':
+        grid[player.xcoord,player.ycoord] = '*'
+    else:
+        loss()
+    text.config(state=NORMAL)
+    text.delete(1.0,END)
+    text.insert(INSERT,grid)
+    text.config(state=DISABLED)
+
+
+
+
+
+makeplayer()
+
+def Up(event):
+    global oldx
+    global oldy
+    oldx = player.xcoord
+    oldy = player.ycoord   
+    if player.xcoord > 0:
+        player.xcoord -= 1
+        movement()
+    
+def Down(event):
+    global oldx
+    global oldy
+    oldx = player.xcoord
+    oldy = player.ycoord
+    
+    player.xcoord += 1
+    movement()
+def Left(event):
+    global oldx
+    global oldy
+    oldx = player.xcoord
+    oldy = player.ycoord  
+    player.ycoord -= 1
+    movement()
+def Right(event):
+    global oldx
+    global oldy
+    oldx = player.xcoord
+    oldy = player.ycoord
+   
+    player.ycoord += 1
+    movement()
+
+
+root.bind("<Up>",Up)
+root.bind("<Down>",Down)
+root.bind("<Left>",Left)
+root.bind("<Right>",Right)
+
+text.pack()   
+root.mainloop()
